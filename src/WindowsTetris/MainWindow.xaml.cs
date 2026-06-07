@@ -131,23 +131,33 @@ public partial class MainWindow : Window
         _sound.PlayEffect("clear");
         Render();
 
+        // The user can restart (R) or open the menu mid-countdown. Both clear
+        // _countingDown (and restart swaps _engine), so bail out if either
+        // happens across an await to avoid mutating an abandoned/new game.
+        var expected = _engine;
+
         ShowMessage("STAGE CLEAR", "Get ready...");
         await Task.Delay(900);
+        if (!StillCounting(expected)) return;
+
         for (int n = 3; n >= 1; n--)
         {
             MessageText.Text = n.ToString();
             MessageSub.Text = string.Empty;
             await Task.Delay(600);
+            if (!StillCounting(expected)) return;
         }
 
-        if (_engine is null) return;
-        _engine.AdvanceStage();
+        expected!.AdvanceStage();
         MessageOverlay.Visibility = Visibility.Collapsed;
         _countingDown = false;
         _sound.StartBgm();
         RestartGravity();
         Render();
     }
+
+    private bool StillCounting(GameEngine? expected) =>
+        _countingDown && ReferenceEquals(_engine, expected);
 
     private void ShowMessage(string title, string sub)
     {
