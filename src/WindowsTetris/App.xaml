@@ -1,0 +1,41 @@
+<Application x:Class="WindowsTetris.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ThemeMode="Dark"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+
+        <!-- Tetromino / board colour palette -->
+        <Color x:Key="BoardBackColor">#0B0F1A</Color>
+        <SolidColorBrush x:Key="EmptyCellBrush" Color="#161C2B" />
+        <SolidColorBrush x:Key="GridLineBrush" Color="#1F273B" />
+
+        <!-- Accent used across buttons / headings -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#22D3EE" />
+        <SolidColorBrush x:Key="PanelBrush" Color="#11172480" />
+        <SolidColorBrush x:Key="LabelBrush" Color="#8B96AD" />
+
+        <Style x:Key="StatLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource LabelBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+        </Style>
+
+        <Style x:Key="StatValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="18,16" />
+            <Setter Property="BorderBrush" Value="#243049" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+    </Application.Resources>
+</Application>
