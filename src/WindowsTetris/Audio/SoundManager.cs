@@ -65,7 +65,8 @@ public sealed class SoundManager
     {
         if (!_bgmReady) return;
         _bgm.Position = TimeSpan.Zero;
-        if (!_muted) _bgm.Play();
+        // Always play; muting is handled via volume so unmuting later resumes audio.
+        _bgm.Play();
     }
 
     public void StopBgm()
@@ -80,7 +81,7 @@ public sealed class SoundManager
 
     public void ResumeBgm()
     {
-        if (_bgmReady && !_muted) _bgm.Play();
+        if (_bgmReady) _bgm.Play();
     }
 
     public void SetMuted(bool muted)
