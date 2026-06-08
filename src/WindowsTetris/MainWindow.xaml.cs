@@ -16,10 +16,17 @@ public partial class MainWindow : Window
     private const int CellSize = 28;
     private const int NextCell = 24;
 
+    // Fraction of a cell left as a coloured border around the embedded mascot.
+    private const double MascotInsetRatio = 0.12;
+
     private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
 
     // The Devin mascot, embedded into every filled block.
     private static readonly ImageSource MascotImage = LoadMascot();
+
+    // Per-colour brushes that composite the mascot over the block colour. These
+    // are built once and frozen so the render loop never allocates per cell.
+    private static readonly Brush[] MascotFillBrushes = BuildMascotFillBrushes();
 
     private static ImageSource LoadMascot()
     {
@@ -30,6 +37,31 @@ public partial class MainWindow : Window
         img.EndInit();
         img.Freeze();
         return img;
+    }
+
+    private static Brush[] BuildMascotFillBrushes()
+    {
+        var result = new Brush[CellBrushes.Length];
+        for (int i = 0; i < CellBrushes.Length; i++)
+            result[i] = BuildMascotBrush(CellBrushes[i].Color);
+        return result;
+    }
+
+    private static Brush BuildMascotBrush(Color color)
+    {
+        const double extent = 100.0;
+        double inset = extent * MascotInsetRatio;
+
+        var group = new DrawingGroup();
+        group.Children.Add(new GeometryDrawing(
+            new SolidColorBrush(color), null,
+            new RectangleGeometry(new Rect(0, 0, extent, extent))));
+        group.Children.Add(new ImageDrawing(
+            MascotImage, new Rect(inset, inset, extent - inset * 2, extent - inset * 2)));
+
+        var brush = new DrawingBrush(group);
+        brush.Freeze();
+        return brush;
     }
 
     private readonly SoundManager _sound = new();
@@ -335,7 +367,7 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                    AddCell(BoardCanvas, c, r, CellSize, CellBrushes[v], filled: true, gem: v == CellType.Gem);
+                    AddCell(BoardCanvas, c, r, CellSize, MascotFillBrushes[v], filled: true, gem: v == CellType.Gem);
                 }
             }
         }
@@ -360,7 +392,7 @@ public partial class MainWindow : Window
                 for (int c = 0; c < n; c++)
                     if (piece.Cells[r, c] != 0 && piece.Row + r >= 0)
                         AddCell(BoardCanvas, piece.Col + c, piece.Row + r, CellSize,
-                            CellBrushes[piece.Color], filled: true);
+                            MascotFillBrushes[piece.Color], filled: true);
         }
     }
 
@@ -394,7 +426,7 @@ public partial class MainWindow : Window
                 {
                     double x = offX + (c - minC) * NextCell;
                     double y = offY + (r - minR) * NextCell;
-                    AddRect(NextCanvas, x, y, NextCell, CellBrushes[shape.Color], filled: true);
+                    AddRect(NextCanvas, x, y, NextCell, MascotFillBrushes[shape.Color], filled: true);
                 }
     }
 
@@ -441,22 +473,6 @@ public partial class MainWindow : Window
         Canvas.SetLeft(rect, x + 1);
         Canvas.SetTop(rect, y + 1);
         canvas.Children.Add(rect);
-
-        if (filled)
-        {
-            double inset = 3;
-            var mascot = new Image
-            {
-                Width = size - inset * 2,
-                Height = size - inset * 2,
-                Source = MascotImage,
-                Stretch = Stretch.Uniform,
-                IsHitTestVisible = false,
-            };
-            Canvas.SetLeft(mascot, x + inset);
-            Canvas.SetTop(mascot, y + inset);
-            canvas.Children.Add(mascot);
-        }
     }
 
     private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
