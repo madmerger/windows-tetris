@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsTetris.Audio;
@@ -16,6 +17,7 @@ public partial class MainWindow : Window
     private const int NextCell = 24;
 
     private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
+    private static readonly BitmapImage MascotImage = LoadMascot();
 
     private readonly SoundManager _sound = new();
     private readonly DispatcherTimer _gravity = new(DispatcherPriority.Render);
@@ -30,6 +32,19 @@ public partial class MainWindow : Window
         InitializeComponent();
         _gravity.Tick += OnGravityTick;
         KeyDown += OnKeyDown;
+    }
+
+    private static BitmapImage LoadMascot()
+    {
+        var uri = new Uri("pack://application:,,,/Assets/Images/devin_mascot.png", UriKind.Absolute);
+        var bmp = new BitmapImage();
+        bmp.BeginInit();
+        bmp.UriSource = uri;
+        bmp.DecodePixelWidth = 56;
+        bmp.CacheOption = BitmapCacheOption.OnLoad;
+        bmp.EndInit();
+        bmp.Freeze();
+        return bmp;
     }
 
     private static SolidColorBrush[] BuildBrushes()
@@ -426,6 +441,22 @@ public partial class MainWindow : Window
         Canvas.SetLeft(rect, x + 1);
         Canvas.SetTop(rect, y + 1);
         canvas.Children.Add(rect);
+
+        if (filled)
+        {
+            double pad = size * 0.12;
+            var img = new System.Windows.Controls.Image
+            {
+                Source = MascotImage,
+                Width = size - 2 - pad * 2,
+                Height = size - 2 - pad * 2,
+                Opacity = 0.85,
+                IsHitTestVisible = false,
+            };
+            Canvas.SetLeft(img, x + 1 + pad);
+            Canvas.SetTop(img, y + 1 + pad);
+            canvas.Children.Add(img);
+        }
     }
 
     private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
