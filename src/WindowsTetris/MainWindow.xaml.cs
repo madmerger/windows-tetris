@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsTetris.Audio;
@@ -16,6 +17,20 @@ public partial class MainWindow : Window
     private const int NextCell = 24;
 
     private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
+
+    // The Devin mascot, embedded into every filled block.
+    private static readonly ImageSource MascotImage = LoadMascot();
+
+    private static ImageSource LoadMascot()
+    {
+        var img = new BitmapImage();
+        img.BeginInit();
+        img.UriSource = new Uri("pack://application:,,,/Assets/Images/devin.png");
+        img.CacheOption = BitmapCacheOption.OnLoad;
+        img.EndInit();
+        img.Freeze();
+        return img;
+    }
 
     private readonly SoundManager _sound = new();
     private readonly DispatcherTimer _gravity = new(DispatcherPriority.Render);
@@ -426,6 +441,22 @@ public partial class MainWindow : Window
         Canvas.SetLeft(rect, x + 1);
         Canvas.SetTop(rect, y + 1);
         canvas.Children.Add(rect);
+
+        if (filled)
+        {
+            double inset = 3;
+            var mascot = new Image
+            {
+                Width = size - inset * 2,
+                Height = size - inset * 2,
+                Source = MascotImage,
+                Stretch = Stretch.Uniform,
+                IsHitTestVisible = false,
+            };
+            Canvas.SetLeft(mascot, x + inset);
+            Canvas.SetTop(mascot, y + inset);
+            canvas.Children.Add(mascot);
+        }
     }
 
     private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
