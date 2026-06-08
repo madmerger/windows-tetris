@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsTetris.Audio;
@@ -16,6 +17,9 @@ public partial class MainWindow : Window
     private const int NextCell = 24;
 
     private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
+
+    // Devin mascot drawn on top of every filled tile.
+    private static readonly ImageSource MascotImage = LoadMascot();
 
     private readonly SoundManager _sound = new();
     private readonly DispatcherTimer _gravity = new(DispatcherPriority.Render);
@@ -55,6 +59,17 @@ public partial class MainWindow : Window
             B("#64748B"), // 8 wall slate
             B("#FFC83D"), // 9 gem gold
         };
+    }
+
+    private static ImageSource LoadMascot()
+    {
+        var image = new BitmapImage();
+        image.BeginInit();
+        image.UriSource = new Uri("pack://application:,,,/Assets/Images/mascot.png");
+        image.CacheOption = BitmapCacheOption.OnLoad;
+        image.EndInit();
+        image.Freeze();
+        return image;
     }
 
     // ----- Game lifecycle -----------------------------------------------------
@@ -380,6 +395,7 @@ public partial class MainWindow : Window
                     double x = offX + (c - minC) * NextCell;
                     double y = offY + (r - minR) * NextCell;
                     AddRect(NextCanvas, x, y, NextCell, CellBrushes[shape.Color], filled: true);
+                    AddMascot(NextCanvas, x, y, NextCell);
                 }
     }
 
@@ -387,6 +403,10 @@ public partial class MainWindow : Window
         bool filled, bool gem = false)
     {
         AddRect(canvas, col * size, row * size, size, brush, filled);
+        if (filled)
+        {
+            AddMascot(canvas, col * size, row * size, size);
+        }
         if (gem)
         {
             double cx = col * size + size / 2.0;
@@ -426,6 +446,22 @@ public partial class MainWindow : Window
         Canvas.SetLeft(rect, x + 1);
         Canvas.SetTop(rect, y + 1);
         canvas.Children.Add(rect);
+    }
+
+    private static void AddMascot(Canvas canvas, double x, double y, int size)
+    {
+        const double inset = 2;
+        double dim = size - 2 - inset * 2;
+        var image = new Image
+        {
+            Source = MascotImage,
+            Width = dim,
+            Height = dim,
+            Stretch = Stretch.Uniform,
+        };
+        Canvas.SetLeft(image, x + 1 + inset);
+        Canvas.SetTop(image, y + 1 + inset);
+        canvas.Children.Add(image);
     }
 
     private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
