@@ -18,6 +18,7 @@ public partial class MainWindow : Window
 
     private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
     private static readonly BitmapImage MascotImage = LoadMascot();
+    private static readonly Brush[] MascotCellBrushes = BuildMascotBrushes();
 
     private readonly SoundManager _sound = new();
     private readonly DispatcherTimer _gravity = new(DispatcherPriority.Render);
@@ -45,6 +46,35 @@ public partial class MainWindow : Window
         bmp.EndInit();
         bmp.Freeze();
         return bmp;
+    }
+
+    private static Brush[] BuildMascotBrushes()
+    {
+        var brushes = new Brush[CellBrushes.Length];
+        for (int i = 0; i < CellBrushes.Length; i++)
+        {
+            var bgDrawing = new GeometryDrawing(
+                CellBrushes[i], null,
+                new RectangleGeometry(new Rect(0, 0, 1, 1)));
+
+            const double pad = 0.12;
+            var imgDrawing = new ImageDrawing(
+                MascotImage,
+                new Rect(pad, pad, 1 - pad * 2, 1 - pad * 2));
+
+            var imgGroup = new DrawingGroup { Opacity = 0.85 };
+            imgGroup.Children.Add(imgDrawing);
+
+            var group = new DrawingGroup();
+            group.Children.Add(bgDrawing);
+            group.Children.Add(imgGroup);
+            group.Freeze();
+
+            var brush = new DrawingBrush(group) { Stretch = Stretch.Fill };
+            brush.Freeze();
+            brushes[i] = brush;
+        }
+        return brushes;
     }
 
     private static SolidColorBrush[] BuildBrushes()
@@ -335,7 +365,7 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                    AddCell(BoardCanvas, c, r, CellSize, CellBrushes[v], filled: true, gem: v == CellType.Gem);
+                    AddCell(BoardCanvas, c, r, CellSize, MascotCellBrushes[v], filled: true, gem: v == CellType.Gem);
                 }
             }
         }
@@ -360,7 +390,7 @@ public partial class MainWindow : Window
                 for (int c = 0; c < n; c++)
                     if (piece.Cells[r, c] != 0 && piece.Row + r >= 0)
                         AddCell(BoardCanvas, piece.Col + c, piece.Row + r, CellSize,
-                            CellBrushes[piece.Color], filled: true);
+                            MascotCellBrushes[piece.Color], filled: true);
         }
     }
 
@@ -394,7 +424,7 @@ public partial class MainWindow : Window
                 {
                     double x = offX + (c - minC) * NextCell;
                     double y = offY + (r - minR) * NextCell;
-                    AddRect(NextCanvas, x, y, NextCell, CellBrushes[shape.Color], filled: true);
+                    AddRect(NextCanvas, x, y, NextCell, MascotCellBrushes[shape.Color], filled: true);
                 }
     }
 
@@ -441,22 +471,6 @@ public partial class MainWindow : Window
         Canvas.SetLeft(rect, x + 1);
         Canvas.SetTop(rect, y + 1);
         canvas.Children.Add(rect);
-
-        if (filled)
-        {
-            double pad = size * 0.12;
-            var img = new System.Windows.Controls.Image
-            {
-                Source = MascotImage,
-                Width = size - 2 - pad * 2,
-                Height = size - 2 - pad * 2,
-                Opacity = 0.85,
-                IsHitTestVisible = false,
-            };
-            Canvas.SetLeft(img, x + 1 + pad);
-            Canvas.SetTop(img, y + 1 + pad);
-            canvas.Children.Add(img);
-        }
     }
 
     private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
