@@ -11,9 +11,9 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0A0E18" Offset="0" />
-                <GradientStop Color="#0F1626" Offset="0.5" />
-                <GradientStop Color="#0A0E18" Offset="1" />
+                <GradientStop x:Name="BgStop0" Color="#0A0E18" Offset="0" />
+                <GradientStop x:Name="BgStop1" Color="#0F1626" Offset="0.5" />
+                <GradientStop x:Name="BgStop2" Color="#0A0E18" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
 
@@ -28,9 +28,9 @@
             <!-- Left: title + stats -->
             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,22,0">
                 <TextBlock Text="TETRIS" FontSize="40" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4" />
+                           Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4" />
                 <TextBlock x:Name="ModeText" Text="INFINITE MODE"
-                           Foreground="{StaticResource LabelBrush}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource LabelBrush}" FontWeight="SemiBold"
                            Margin="0,0,0,18" />
 
                 <Border Style="{StaticResource Card}">
@@ -64,11 +64,13 @@
             </StackPanel>
 
             <!-- Center: playfield -->
-            <Border Grid.Column="1" CornerRadius="16" Padding="10"
-                    Background="#0B0F1A" BorderBrush="#243049" BorderThickness="1"
+            <Border x:Name="BoardBorder" Grid.Column="1" CornerRadius="16" Padding="10"
+                    Background="{DynamicResource BoardBackBrush}"
+                    BorderBrush="{DynamicResource BoardBorderBrush}" BorderThickness="1"
                     VerticalAlignment="Center">
                 <Border.Effect>
-                    <DropShadowEffect Color="#0022D3EE" BlurRadius="40" ShadowDepth="0" Opacity="0.9" />
+                    <DropShadowEffect x:Name="BoardGlow" Color="#0022D3EE" BlurRadius="40"
+                                      ShadowDepth="0" Opacity="0.9" />
                 </Border.Effect>
                 <Canvas x:Name="BoardCanvas" Width="280" Height="560" />
             </Border>
@@ -91,6 +93,8 @@
                                 Margin="0,0,0,8" Padding="10,8" />
                         <Button x:Name="MuteButton" Content="Mute (M)" Click="OnMuteClick"
                                 Margin="0,0,0,8" Padding="10,8" />
+                        <Button x:Name="ThemeButton" Content="Theme (T)" Click="OnThemeClick"
+                                Margin="0,0,0,8" Padding="10,8" />
                         <Button x:Name="MenuButton" Content="Main Menu" Click="OnMenuClick"
                                 Padding="10,8" />
                     </StackPanel>
@@ -99,12 +103,13 @@
                 <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                     <StackPanel>
                         <TextBlock Text="CONTROLS" Style="{StaticResource StatLabel}" />
-                        <TextBlock Foreground="#9AA6BE" FontSize="12" TextWrapping="Wrap"
-                                   LineHeight="18">
-                            ◀ ▶  Move<LineBreak/>
-                            ▲  Rotate<LineBreak/>
-                            ▼  Soft drop<LineBreak/>
-                            Space  Hard drop
+                        <TextBlock Foreground="{DynamicResource ControlsTextBrush}" FontSize="12"
+                                   TextWrapping="Wrap" LineHeight="18">
+                            &#x25C0; &#x25B6;  Move<LineBreak/>
+                            &#x25B2;  Rotate<LineBreak/>
+                            &#x25BC;  Soft drop<LineBreak/>
+                            Space  Hard drop<LineBreak/>
+                            T  Theme
                         </TextBlock>
                     </StackPanel>
                 </Border>
@@ -112,15 +117,16 @@
         </Grid>
 
         <!-- ===================== MESSAGE OVERLAY ===================== -->
-        <Grid x:Name="MessageOverlay" Background="#99060912" Visibility="Collapsed">
+        <Grid x:Name="MessageOverlay" Background="{DynamicResource OverlayBgBrush}"
+              Visibility="Collapsed">
             <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Background="#11172A" CornerRadius="18" Padding="48,32"
-                    BorderBrush="#243049" BorderThickness="1">
+                    Background="{DynamicResource MessageBgBrush}" CornerRadius="18" Padding="48,32"
+                    BorderBrush="{DynamicResource MessageBorderBrush}" BorderThickness="1">
                 <StackPanel>
                     <TextBlock x:Name="MessageText" Text="PAUSED" FontSize="40" FontWeight="Bold"
                                Foreground="White" HorizontalAlignment="Center" />
                     <TextBlock x:Name="MessageSub" Text="Press P to resume" FontSize="14"
-                               Foreground="{StaticResource LabelBrush}" Margin="0,10,0,0"
+                               Foreground="{DynamicResource LabelBrush}" Margin="0,10,0,0"
                                HorizontalAlignment="Center" />
                 </StackPanel>
             </Border>
@@ -130,26 +136,40 @@
         <Grid x:Name="MenuOverlay">
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#0A0E18" Offset="0" />
-                    <GradientStop Color="#101A30" Offset="1" />
+                    <GradientStop x:Name="MenuStop0" Color="#0A0E18" Offset="0" />
+                    <GradientStop x:Name="MenuStop1" Color="#101A30" Offset="1" />
                 </LinearGradientBrush>
             </Grid.Background>
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="360">
                 <TextBlock Text="TETRIS" FontSize="64" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}"
+                           Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center" />
                 <TextBlock Text="Choose a mode to start"
-                           Foreground="{StaticResource LabelBrush}" FontSize="15"
+                           Foreground="{DynamicResource LabelBrush}" FontSize="15"
                            HorizontalAlignment="Center" Margin="0,4,0,32" />
 
                 <Button Content="STAGE  MODE" Click="OnStartStage"
                         FontSize="18" FontWeight="SemiBold" Padding="0,16" Margin="0,0,0,14" />
                 <Button Content="INFINITE  MODE" Click="OnStartInfinite"
-                        FontSize="18" FontWeight="SemiBold" Padding="0,16" />
+                        FontSize="18" FontWeight="SemiBold" Padding="0,16" Margin="0,0,0,14" />
 
-                <TextBlock TextAlignment="Center" Foreground="#8693AD" FontSize="12"
-                           Margin="0,30,0,0" TextWrapping="Wrap" LineHeight="18">
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="THEME" Style="{StaticResource StatLabel}" Margin="0,0,0,6" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="ThemeDarkBtn" Content="Dark" Click="OnThemeDark"
+                                    Padding="16,8" Margin="0,0,8,0" />
+                            <Button x:Name="ThemeLightBtn" Content="Light" Click="OnThemeLight"
+                                    Padding="16,8" Margin="0,0,8,0" />
+                            <Button x:Name="ThemeRetroBtn" Content="Retro" Click="OnThemeRetro"
+                                    Padding="16,8" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock TextAlignment="Center" Foreground="{DynamicResource MenuHintBrush}"
+                           FontSize="12" Margin="0,16,0,0" TextWrapping="Wrap" LineHeight="18">
                     Stage mode: clear every gem to advance through 20 stages.<LineBreak/>
                     Infinite mode: classic endless Tetris.
                 </TextBlock>

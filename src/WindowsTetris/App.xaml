@@ -5,7 +5,7 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-        <!-- Tetromino / board colour palette -->
+        <!-- Tetromino / board colour palette (defaults; overwritten by ThemeManager) -->
         <Color x:Key="BoardBackColor">#0B0F1A</Color>
         <SolidColorBrush x:Key="EmptyCellBrush" Color="#161C2B" />
         <SolidColorBrush x:Key="GridLineBrush" Color="#1F273B" />
@@ -14,26 +14,53 @@
         <SolidColorBrush x:Key="AccentBrush" Color="#22D3EE" />
         <SolidColorBrush x:Key="PanelBrush" Color="#11172480" />
         <SolidColorBrush x:Key="LabelBrush" Color="#8B96AD" />
+        <SolidColorBrush x:Key="StatValueForeground" Color="White" />
+        <SolidColorBrush x:Key="ControlsTextBrush" Color="#9AA6BE" />
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#243049" />
+
+        <!-- Board border / glow -->
+        <SolidColorBrush x:Key="BoardBorderBrush" Color="#243049" />
+        <SolidColorBrush x:Key="BoardBackBrush" Color="#0B0F1A" />
+        <Color x:Key="BoardGlowColor">#0022D3EE</Color>
+
+        <!-- Overlays -->
+        <SolidColorBrush x:Key="OverlayBgBrush" Color="#99060912" />
+        <SolidColorBrush x:Key="MessageBgBrush" Color="#11172A" />
+        <SolidColorBrush x:Key="MessageBorderBrush" Color="#243049" />
+
+        <!-- Background gradients (defaults; overwritten by ThemeManager) -->
+        <LinearGradientBrush x:Key="BgGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0A0E18" Offset="0" />
+            <GradientStop Color="#0F1626" Offset="0.5" />
+            <GradientStop Color="#0A0E18" Offset="1" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="MenuGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0A0E18" Offset="0" />
+            <GradientStop Color="#101A30" Offset="1" />
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="MenuHintBrush" Color="#8693AD" />
 
         <Style x:Key="StatLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource LabelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource LabelBrush}" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,2" />
         </Style>
 
         <Style x:Key="StatValue" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource StatValueForeground}" />
             <Setter Property="FontSize" Value="24" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Margin" Value="0,0,0,14" />
         </Style>
 
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
             <Setter Property="CornerRadius" Value="14" />
             <Setter Property="Padding" Value="18,16" />
-            <Setter Property="BorderBrush" Value="#243049" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 

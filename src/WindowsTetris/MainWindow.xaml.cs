@@ -7,6 +7,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsTetris.Audio;
 using WindowsTetris.Game;
+using WindowsTetris.Theme;
 
 namespace WindowsTetris;
 
@@ -15,7 +16,8 @@ public partial class MainWindow : Window
     private const int CellSize = 28;
     private const int NextCell = 24;
 
-    private static readonly SolidColorBrush[] CellBrushes = BuildBrushes();
+    private SolidColorBrush[] _cellBrushes = ThemeManager.BuildCellBrushes();
+    private SolidColorBrush _cellStroke = ThemeManager.BuildCellStrokeBrush();
 
     private readonly SoundManager _sound = new();
     private readonly DispatcherTimer _gravity = new(DispatcherPriority.Render);
@@ -30,31 +32,32 @@ public partial class MainWindow : Window
         InitializeComponent();
         _gravity.Tick += OnGravityTick;
         KeyDown += OnKeyDown;
+
+        ThemeManager.ThemeChanged += OnThemeChanged;
+        ThemeManager.Apply(AppTheme.Dark);
     }
 
-    private static SolidColorBrush[] BuildBrushes()
+    private void OnThemeChanged()
     {
-        SolidColorBrush B(string hex)
-        {
-            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
-            brush.Freeze();
-            return brush;
-        }
+        _cellBrushes = ThemeManager.BuildCellBrushes();
+        _cellStroke = ThemeManager.BuildCellStrokeBrush();
 
-        // Indexed by CellType (0 unused/empty handled separately).
-        return new[]
-        {
-            B("#161C2B"), // 0 empty (not used for fills)
-            B("#22D3EE"), // 1 I  cyan
-            B("#FACC15"), // 2 O  yellow
-            B("#C084FC"), // 3 T  purple
-            B("#4ADE80"), // 4 S  green
-            B("#F87171"), // 5 Z  red
-            B("#60A5FA"), // 6 J  blue
-            B("#FB923C"), // 7 L  orange
-            B("#64748B"), // 8 wall slate
-            B("#FFC83D"), // 9 gem gold
-        };
+        var def = ThemeDefinition.Get(ThemeManager.CurrentTheme);
+        Color Col(string hex) => (Color)ColorConverter.ConvertFromString(hex);
+
+        // Update gradient stops that can't use DynamicResource
+        BgStop0.Color = Col(def.BgGradientStart);
+        BgStop1.Color = Col(def.BgGradientMid);
+        BgStop2.Color = Col(def.BgGradientEnd);
+
+        MenuStop0.Color = Col(def.MenuGradientStart);
+        MenuStop1.Color = Col(def.MenuGradientEnd);
+
+        BoardGlow.Color = Col(def.BoardGlow);
+
+        ThemeMode = def.IsDark ? ThemeMode.Dark : ThemeMode.Light;
+
+        if (_engine is not null) Render();
     }
 
     // ----- Game lifecycle -----------------------------------------------------
@@ -198,6 +201,7 @@ public partial class MainWindow : Window
         if (MenuOverlay.Visibility == Visibility.Visible)
         {
             if (e.Key == Key.Enter) OnStartInfinite(this, e);
+            if (e.Key == Key.T) CycleTheme();
             return;
         }
 
@@ -213,6 +217,10 @@ public partial class MainWindow : Window
                 return;
             case Key.R:
                 if (_engine is not null) StartGame(_engine.Mode);
+                e.Handled = true;
+                return;
+            case Key.T:
+                CycleTheme();
                 e.Handled = true;
                 return;
         }
@@ -255,12 +263,22 @@ public partial class MainWindow : Window
         MuteButton.Content = _sound.IsMuted ? "Unmute (M)" : "Mute (M)";
     }
 
+    private void CycleTheme()
+    {
+        ThemeManager.CycleNext();
+    }
+
     // ----- Button handlers ----------------------------------------------------
 
     private void OnStartStage(object sender, RoutedEventArgs e) => StartGame(GameMode.Stage);
     private void OnStartInfinite(object sender, RoutedEventArgs e) => StartGame(GameMode.Infinite);
     private void OnPauseClick(object sender, RoutedEventArgs e) => TogglePause();
     private void OnMuteClick(object sender, RoutedEventArgs e) => ToggleMute();
+    private void OnThemeClick(object sender, RoutedEventArgs e) => CycleTheme();
+
+    private void OnThemeDark(object sender, RoutedEventArgs e) => ThemeManager.Apply(AppTheme.Dark);
+    private void OnThemeLight(object sender, RoutedEventArgs e) => ThemeManager.Apply(AppTheme.Light);
+    private void OnThemeRetro(object sender, RoutedEventArgs e) => ThemeManager.Apply(AppTheme.Retro);
 
     private void OnRestartClick(object sender, RoutedEventArgs e)
     {
@@ -316,11 +334,13 @@ public partial class MainWindow : Window
                 int v = _engine.CellAt(r, c);
                 if (v == CellType.Empty)
                 {
-                    AddCell(BoardCanvas, c, r, CellSize, (Brush)Resources["EmptyCellBrush"], filled: false);
+                    AddCell(BoardCanvas, c, r, CellSize,
+                        (Brush)FindResource("EmptyCellBrush"), filled: false);
                 }
                 else
                 {
-                    AddCell(BoardCanvas, c, r, CellSize, CellBrushes[v], filled: true, gem: v == CellType.Gem);
+                    AddCell(BoardCanvas, c, r, CellSize, _cellBrushes[v], filled: true,
+                        gem: v == CellType.Gem);
                 }
             }
         }
@@ -335,7 +355,8 @@ public partial class MainWindow : Window
             for (int r = 0; r < n; r++)
                 for (int c = 0; c < n; c++)
                     if (piece.Cells[r, c] != 0)
-                        AddGhost(BoardCanvas, piece.Col + c, ghostRow + r, CellSize, CellBrushes[piece.Color]);
+                        AddGhost(BoardCanvas, piece.Col + c, ghostRow + r, CellSize,
+                            _cellBrushes[piece.Color]);
         }
 
         // Active piece.
@@ -345,7 +366,7 @@ public partial class MainWindow : Window
                 for (int c = 0; c < n; c++)
                     if (piece.Cells[r, c] != 0 && piece.Row + r >= 0)
                         AddCell(BoardCanvas, piece.Col + c, piece.Row + r, CellSize,
-                            CellBrushes[piece.Color], filled: true);
+                            _cellBrushes[piece.Color], filled: true);
         }
     }
 
@@ -379,7 +400,7 @@ public partial class MainWindow : Window
                 {
                     double x = offX + (c - minC) * NextCell;
                     double y = offY + (r - minR) * NextCell;
-                    AddRect(NextCanvas, x, y, NextCell, CellBrushes[shape.Color], filled: true);
+                    AddRect(NextCanvas, x, y, NextCell, _cellBrushes[shape.Color], filled: true);
                 }
     }
 
@@ -408,7 +429,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private static void AddRect(Canvas canvas, double x, double y, int size, Brush brush, bool filled)
+    private void AddRect(Canvas canvas, double x, double y, int size, Brush brush, bool filled)
     {
         var rect = new Rectangle
         {
@@ -420,7 +441,7 @@ public partial class MainWindow : Window
         };
         if (filled)
         {
-            rect.Stroke = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255));
+            rect.Stroke = _cellStroke;
             rect.StrokeThickness = 1;
         }
         Canvas.SetLeft(rect, x + 1);
@@ -428,7 +449,8 @@ public partial class MainWindow : Window
         canvas.Children.Add(rect);
     }
 
-    private static void AddGhost(Canvas canvas, int col, int row, int size, SolidColorBrush colorBrush)
+    private static void AddGhost(Canvas canvas, int col, int row, int size,
+        SolidColorBrush colorBrush)
     {
         var rect = new Rectangle
         {
