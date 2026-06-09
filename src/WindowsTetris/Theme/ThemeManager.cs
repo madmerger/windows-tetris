@@ -53,6 +53,7 @@ public static class ThemeManager
         res["OverlayBgBrush"] = Brush(def.OverlayBg);
         res["MessageBgBrush"] = Brush(def.MessageBg);
         res["MessageBorderBrush"] = Brush(def.MessageBorder);
+        res["MessageTextBrush"] = Brush(def.MessageText);
 
         // Background gradients
         var bgBrush = new LinearGradientBrush

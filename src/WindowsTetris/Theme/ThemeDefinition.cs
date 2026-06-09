@@ -40,6 +40,9 @@ public sealed class ThemeDefinition
     public required string MessageBg { get; init; }
     public required string MessageBorder { get; init; }
 
+    // Message overlay heading
+    public required string MessageText { get; init; }
+
     // Menu
     public required string MenuGradientStart { get; init; }
     public required string MenuGradientEnd { get; init; }
@@ -84,6 +87,7 @@ public sealed class ThemeDefinition
         OverlayBg = "#99060912",
         MessageBg = "#11172A",
         MessageBorder = "#243049",
+        MessageText = "#FFFFFF",
         MenuGradientStart = "#0A0E18",
         MenuGradientEnd = "#101A30",
         MenuHint = "#8693AD",
@@ -124,6 +128,7 @@ public sealed class ThemeDefinition
         OverlayBg = "#AAFFFFFF",
         MessageBg = "#F1F5F9",
         MessageBorder = "#CBD5E1",
+        MessageText = "#1E293B",
         MenuGradientStart = "#E8EDF5",
         MenuGradientEnd = "#DDE5F0",
         MenuHint = "#64748B",
@@ -164,6 +169,7 @@ public sealed class ThemeDefinition
         OverlayBg = "#AA0F380F",
         MessageBg = "#0F380F",
         MessageBorder = "#306230",
+        MessageText = "#9BBC0F",
         MenuGradientStart = "#0F380F",
         MenuGradientEnd = "#306230",
         MenuHint = "#8BAC0F",

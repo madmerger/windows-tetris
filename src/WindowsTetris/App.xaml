@@ -27,6 +27,7 @@
         <SolidColorBrush x:Key="OverlayBgBrush" Color="#99060912" />
         <SolidColorBrush x:Key="MessageBgBrush" Color="#11172A" />
         <SolidColorBrush x:Key="MessageBorderBrush" Color="#243049" />
+        <SolidColorBrush x:Key="MessageTextBrush" Color="White" />
 
         <!-- Background gradients (defaults; overwritten by ThemeManager) -->
         <LinearGradientBrush x:Key="BgGradientBrush" StartPoint="0,0" EndPoint="1,1">

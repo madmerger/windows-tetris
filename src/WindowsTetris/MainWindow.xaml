@@ -124,7 +124,8 @@
                     BorderBrush="{DynamicResource MessageBorderBrush}" BorderThickness="1">
                 <StackPanel>
                     <TextBlock x:Name="MessageText" Text="PAUSED" FontSize="40" FontWeight="Bold"
-                               Foreground="White" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource MessageTextBrush}"
+                               HorizontalAlignment="Center" />
                     <TextBlock x:Name="MessageSub" Text="Press P to resume" FontSize="14"
                                Foreground="{DynamicResource LabelBrush}" Margin="0,10,0,0"
                                HorizontalAlignment="Center" />
