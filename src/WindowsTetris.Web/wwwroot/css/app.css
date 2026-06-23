@@ -1,0 +1,285 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #0A0E18 0%, #0F1626 50%, #0A0E18 100%);
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#app {
+    height: 100%;
+}
+
+.game-root {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---- Game Container ---- */
+.game-container {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 28px;
+    position: relative;
+    outline: none;
+}
+
+/* ---- Left Panel ---- */
+.left-panel {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.game-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #22D3EE;
+    line-height: 1;
+}
+
+.mode-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #8B96AD;
+    margin-bottom: 4px;
+}
+
+/* ---- Card ---- */
+.card {
+    background: rgba(17, 23, 36, 0.5);
+    border: 1px solid #243049;
+    border-radius: 14px;
+    padding: 18px 16px;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8B96AD;
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+}
+
+.stat-value:last-child {
+    margin-bottom: 0;
+}
+
+/* ---- Board ---- */
+.board-frame {
+    border: 1px solid #243049;
+    border-radius: 16px;
+    padding: 10px;
+    background: #0B0F1A;
+    box-shadow: 0 0 40px rgba(34, 211, 238, 0.15);
+    flex-shrink: 0;
+}
+
+.board-frame canvas {
+    display: block;
+}
+
+/* ---- Right Panel ---- */
+.right-panel {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.next-canvas-wrap canvas {
+    display: block;
+    margin: 6px auto 0;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 10px 8px;
+    border: 1px solid #243049;
+    border-radius: 8px;
+    background: rgba(17, 23, 36, 0.6);
+    color: #C0C9DB;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: center;
+}
+
+.btn:hover {
+    background: rgba(34, 211, 238, 0.1);
+    border-color: #22D3EE;
+    color: #fff;
+}
+
+.btn + .btn {
+    margin-top: 8px;
+}
+
+.controls-text {
+    font-size: 12px;
+    color: #9AA6BE;
+    line-height: 1.6;
+}
+
+/* ---- Overlays ---- */
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 9, 18, 0.6);
+    z-index: 10;
+}
+
+.overlay-box {
+    background: #11172A;
+    border: 1px solid #243049;
+    border-radius: 18px;
+    padding: 48px 48px 32px;
+    text-align: center;
+    min-width: 340px;
+}
+
+.overlay-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.overlay-sub {
+    font-size: 14px;
+    color: #8B96AD;
+    margin-top: 10px;
+}
+
+/* ---- Menu Overlay ---- */
+.menu-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0A0E18 0%, #101A30 100%);
+    z-index: 20;
+}
+
+.menu-box {
+    text-align: center;
+    width: 360px;
+}
+
+.menu-title {
+    font-size: 64px;
+    font-weight: 700;
+    color: #22D3EE;
+}
+
+.menu-subtitle {
+    font-size: 15px;
+    color: #8B96AD;
+    margin-top: 4px;
+    margin-bottom: 32px;
+}
+
+.menu-btn {
+    display: block;
+    width: 100%;
+    padding: 16px 0;
+    border: 1px solid #243049;
+    border-radius: 10px;
+    background: rgba(17, 23, 36, 0.6);
+    color: #C0C9DB;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: center;
+}
+
+.menu-btn:hover {
+    background: rgba(34, 211, 238, 0.12);
+    border-color: #22D3EE;
+    color: #fff;
+}
+
+.menu-btn + .menu-btn {
+    margin-top: 14px;
+}
+
+.menu-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #8693AD;
+    margin-top: 30px;
+    line-height: 1.6;
+}
+
+/* ---- Loading spinner (Blazor default) ---- */
+.loading-progress {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 20vh auto 1rem auto;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: #22D3EE;
+    stroke-width: 0.15rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: #0B0F1A;
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0) * 0.8%), 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text::after {
+    content: var(--blazor-load-percentage-text, "Loading");
+    color: #8B96AD;
+}
+
+#blazor-error-ui {
+    background: #11172A;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    color: #fff;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

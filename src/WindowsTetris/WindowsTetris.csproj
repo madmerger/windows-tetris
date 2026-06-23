@@ -20,4 +20,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WindowsTetris.Core\WindowsTetris.Core.csproj" />
+  </ItemGroup>
+
 </Project>

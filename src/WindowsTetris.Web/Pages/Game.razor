@@ -1,0 +1,95 @@
+@page "/"
+@using WindowsTetris.Game
+
+<div class="game-container" @ref="_containerRef" tabindex="0"
+     @onkeydown="OnKeyDown" @onkeydown:preventDefault>
+
+    <!-- Left: title + stats -->
+    <div class="left-panel">
+        <div>
+            <div class="game-title">TETRIS</div>
+            <div class="mode-text">@_modeText</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-value">@_scoreText</div>
+            <div class="stat-label">LEVEL</div>
+            <div class="stat-value">@_levelText</div>
+            <div class="stat-label">LINES</div>
+            <div class="stat-value">@_linesText</div>
+            <div class="stat-label">TIME</div>
+            <div class="stat-value" style="margin-bottom:0">@_timeText</div>
+        </div>
+
+        @if (_showStagePanel)
+        {
+            <div class="card">
+                <div class="stat-label">STAGE</div>
+                <div class="stat-value">@_stageText</div>
+                <div class="stat-label">GEMS LEFT</div>
+                <div class="stat-value" style="margin-bottom:0">@_gemsText</div>
+            </div>
+        }
+    </div>
+
+    <!-- Center: playfield -->
+    <div class="board-frame">
+        <canvas id="board-canvas" width="280" height="560"></canvas>
+    </div>
+
+    <!-- Right: next piece + controls -->
+    <div class="right-panel">
+        <div class="card">
+            <div class="stat-label">NEXT</div>
+            <div class="next-canvas-wrap">
+                <canvas id="next-canvas" width="120" height="120"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <button class="btn" @onclick="TogglePause">@_pauseLabel</button>
+            <button class="btn" @onclick="OnRestart">Restart (R)</button>
+            <button class="btn" @onclick="ToggleMute">@_muteLabel</button>
+            <button class="btn" @onclick="OnMenu">Main Menu</button>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">CONTROLS</div>
+            <div class="controls-text">
+                &#9664; &#9654; Move<br />
+                &#9650; Rotate<br />
+                &#9660; Soft drop<br />
+                Space Hard drop
+            </div>
+        </div>
+    </div>
+
+    <!-- Message overlay (pause / game over / stage clear) -->
+    @if (_showMessage)
+    {
+        <div class="overlay">
+            <div class="overlay-box">
+                <div class="overlay-title">@_messageTitle</div>
+                <div class="overlay-sub">@_messageSub</div>
+            </div>
+        </div>
+    }
+
+    <!-- Start menu -->
+    @if (_showMenu)
+    {
+        <div class="menu-overlay">
+            <div class="menu-box">
+                <div class="menu-title">TETRIS</div>
+                <div class="menu-subtitle">Choose a mode to start</div>
+                <button class="menu-btn" @onclick="() => StartGame(GameMode.Stage)">STAGE MODE</button>
+                <button class="menu-btn" @onclick="() => StartGame(GameMode.Infinite)">INFINITE MODE</button>
+                <div class="menu-hint">
+                    Stage mode: clear every gem to advance through 20 stages.<br />
+                    Infinite mode: classic endless Tetris.
+                </div>
+            </div>
+        </div>
+    }
+</div>

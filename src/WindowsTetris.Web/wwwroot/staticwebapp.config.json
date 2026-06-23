@@ -1,0 +1,20 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/css/*",
+      "/js/*",
+      "/audio/*",
+      "/_framework/*",
+      "/favicon.png",
+      "/icon-192.png"
+    ]
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm",
+    ".dll": "application/octet-stream",
+    ".dat": "application/octet-stream",
+    ".blat": "application/octet-stream",
+    ".pdb": "application/octet-stream"
+  }
+}
