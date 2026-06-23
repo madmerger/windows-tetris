@@ -18,6 +18,8 @@ public partial class Game : ComponentBase, IDisposable
     private System.Timers.Timer? _gravityTimer;
     private readonly Stopwatch _clock = new();
     private System.Timers.Timer? _clockTimer;
+    private bool _disposed;
+    private readonly int[] _boardFlat = new int[GameEngine.Height * GameEngine.Width];
 
     private bool _paused;
     private bool _countingDown;
@@ -91,7 +93,11 @@ public partial class Game : ComponentBase, IDisposable
         _gravityTimer?.Stop();
         _gravityTimer?.Dispose();
         _gravityTimer = new System.Timers.Timer(ms);
-        _gravityTimer.Elapsed += async (_, _) => await OnGravityTick();
+        _gravityTimer.Elapsed += async (_, _) =>
+        {
+            try { await OnGravityTick(); }
+            catch (Exception) when (_disposed) { }
+        };
         _gravityTimer.AutoReset = true;
         _gravityTimer.Start();
     }
@@ -141,7 +147,7 @@ public partial class Game : ComponentBase, IDisposable
         }
         else if (r.StageClear)
         {
-            _ = BeginStageClear();
+            _ = SafeBeginStageClear();
         }
     }
 
@@ -153,6 +159,12 @@ public partial class Game : ComponentBase, IDisposable
         await JS.InvokeVoidAsync("TetrisAudio.stopBgm");
         ShowMessageOverlay("GAME OVER", "Press R to play again");
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SafeBeginStageClear()
+    {
+        try { await BeginStageClear(); }
+        catch (Exception) when (_disposed) { }
     }
 
     private async Task BeginStageClear()
@@ -346,10 +358,9 @@ public partial class Game : ComponentBase, IDisposable
         // Board data: flatten 2D board to 1D array for JS interop
         int w = GameEngine.Width;
         int h = GameEngine.Height;
-        var boardFlat = new int[h * w];
         for (int r = 0; r < h; r++)
             for (int c = 0; c < w; c++)
-                boardFlat[r * w + c] = _engine.CellAt(r, c);
+                _boardFlat[r * w + c] = _engine.CellAt(r, c);
 
         var piece = _engine.Current;
         int activeSize = piece.Shape.Size;
@@ -362,7 +373,7 @@ public partial class Game : ComponentBase, IDisposable
         bool isPlaying = _engine.State == GameState.Playing;
 
         await JS.InvokeVoidAsync("TetrisCanvas.drawBoard",
-            "board-canvas", boardFlat, w, h, CellSize,
+            "board-canvas", _boardFlat, w, h, CellSize,
             activeCellsFlat, piece.Row, piece.Col, piece.Color,
             ghostCellsFlat, ghostRow, piece.Col, piece.Color, ghostSize,
             activeSize, isPlaying);
@@ -388,6 +399,7 @@ public partial class Game : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         _gravityTimer?.Stop();
         _gravityTimer?.Dispose();
         _clockTimer?.Stop();
