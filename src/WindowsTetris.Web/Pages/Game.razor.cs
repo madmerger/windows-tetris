@@ -61,28 +61,32 @@ public partial class Game : ComponentBase, IDisposable
 
     private async void StartGame(GameMode mode)
     {
-        await EnsureAudio();
+        try
+        {
+            await EnsureAudio();
 
-        _engine = new GameEngine(mode);
-        _paused = false;
-        _countingDown = false;
+            _engine = new GameEngine(mode);
+            _paused = false;
+            _countingDown = false;
 
-        _modeText = mode == GameMode.Stage ? "STAGE MODE" : "INFINITE MODE";
-        _showStagePanel = mode == GameMode.Stage;
-        _showMenu = false;
-        _showMessage = false;
-        _pauseLabel = "Pause (P)";
+            _modeText = mode == GameMode.Stage ? "STAGE MODE" : "INFINITE MODE";
+            _showStagePanel = mode == GameMode.Stage;
+            _showMenu = false;
+            _showMessage = false;
+            _pauseLabel = "Pause (P)";
 
-        _clock.Restart();
-        StartClockTimer();
+            _clock.Restart();
+            StartClockTimer();
 
-        await JS.InvokeVoidAsync("TetrisAudio.playEffect", "start");
-        await JS.InvokeVoidAsync("TetrisAudio.playBgm");
+            await JS.InvokeVoidAsync("TetrisAudio.playEffect", "start");
+            await JS.InvokeVoidAsync("TetrisAudio.playBgm");
 
-        RestartGravity();
-        await Render();
-        StateHasChanged();
-        await _containerRef.FocusAsync();
+            RestartGravity();
+            await Render();
+            StateHasChanged();
+            await _containerRef.FocusAsync();
+        }
+        catch (Exception) when (_disposed) { }
     }
 
     private void RestartGravity()
@@ -219,39 +223,47 @@ public partial class Game : ComponentBase, IDisposable
 
     private async void TogglePause()
     {
-        if (_engine is null || _countingDown) return;
-        if (_engine.State != GameState.Playing) return;
+        try
+        {
+            if (_engine is null || _countingDown) return;
+            if (_engine.State != GameState.Playing) return;
 
-        _paused = !_paused;
-        if (_paused)
-        {
-            _gravityTimer?.Stop();
-            _clock.Stop();
-            _clockTimer?.Stop();
-            await JS.InvokeVoidAsync("TetrisAudio.pauseBgm");
-            ShowMessageOverlay("PAUSED", "Press P to resume");
-            _pauseLabel = "Resume (P)";
+            _paused = !_paused;
+            if (_paused)
+            {
+                _gravityTimer?.Stop();
+                _clock.Stop();
+                _clockTimer?.Stop();
+                await JS.InvokeVoidAsync("TetrisAudio.pauseBgm");
+                ShowMessageOverlay("PAUSED", "Press P to resume");
+                _pauseLabel = "Resume (P)";
+            }
+            else
+            {
+                _showMessage = false;
+                _clock.Start();
+                StartClockTimer();
+                await JS.InvokeVoidAsync("TetrisAudio.resumeBgm");
+                RestartGravity();
+                _pauseLabel = "Pause (P)";
+                await _containerRef.FocusAsync();
+            }
+            StateHasChanged();
         }
-        else
-        {
-            _showMessage = false;
-            _clock.Start();
-            StartClockTimer();
-            await JS.InvokeVoidAsync("TetrisAudio.resumeBgm");
-            RestartGravity();
-            _pauseLabel = "Pause (P)";
-            await _containerRef.FocusAsync();
-        }
-        StateHasChanged();
+        catch (Exception) when (_disposed) { }
     }
 
     private async void ToggleMute()
     {
-        await EnsureAudio();
-        _muted = !_muted;
-        await JS.InvokeVoidAsync("TetrisAudio.setMuted", _muted);
-        _muteLabel = _muted ? "Unmute (M)" : "Mute (M)";
-        StateHasChanged();
+        try
+        {
+            await EnsureAudio();
+            _muted = !_muted;
+            await JS.InvokeVoidAsync("TetrisAudio.setMuted", _muted);
+            _muteLabel = _muted ? "Unmute (M)" : "Mute (M)";
+            StateHasChanged();
+        }
+        catch (Exception) when (_disposed) { }
     }
 
     private async Task OnKeyDown(KeyboardEventArgs e)
@@ -320,16 +332,20 @@ public partial class Game : ComponentBase, IDisposable
 
     private async void OnMenu()
     {
-        _gravityTimer?.Stop();
-        _clock.Stop();
-        _clockTimer?.Stop();
-        await JS.InvokeVoidAsync("TetrisAudio.stopBgm");
-        _paused = false;
-        _countingDown = false;
-        _pauseLabel = "Pause (P)";
-        _showMessage = false;
-        _showMenu = true;
-        StateHasChanged();
+        try
+        {
+            _gravityTimer?.Stop();
+            _clock.Stop();
+            _clockTimer?.Stop();
+            await JS.InvokeVoidAsync("TetrisAudio.stopBgm");
+            _paused = false;
+            _countingDown = false;
+            _pauseLabel = "Pause (P)";
+            _showMessage = false;
+            _showMenu = true;
+            StateHasChanged();
+        }
+        catch (Exception) when (_disposed) { }
     }
 
     private void UpdateStats()
